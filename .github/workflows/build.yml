@@ -1,0 +1,100 @@
+name: Build for Windows
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - "*"
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code 🛎️
+        uses: actions/checkout@v4
+
+      - name: Cache cargo registry for x32 🛎️
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-x32
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-x32
+
+      - name: Cache cargo index for x32 🛎️
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-x32
+          restore-keys: |
+            ${{ runner.os }}-cargo-index-x32
+
+      - name: Cache cargo build for x32 🛎️
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-x32
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-x32
+
+      - name: Build x32 🔧
+        run: cargo build --release --target i686-pc-windows-msvc
+
+      - name: Archive build output for x32 🔧
+        run: |
+          mkdir -p artifact/x32
+          cp target/i686-pc-windows-msvc/release/json-to-srt.exe artifact/x32/json-to-srt-x86.exe
+        shell: bash
+
+      - name: Upload artifact for x32 🚀
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output-x32
+          path: artifact/x32/
+
+      - name: Cache cargo registry for x64 🛎️
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-x64
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-x64
+
+      - name: Cache cargo index for x64 🛎️
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-x64
+          restore-keys: |
+            ${{ runner.os }}-cargo-index-x64
+
+      - name: Cache cargo build for x64 🛎️
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-build-x64
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-x64
+
+      - name: Build x64 🔧
+        run: cargo build --release --target x86_64-pc-windows-msvc
+
+      - name: Archive build output for x64 🔧
+        run: |
+          mkdir -p artifact/x64
+          cp target/x86_64-pc-windows-msvc/release/json-to-srt.exe artifact/x64/json-to-srt-x64.exe
+        shell: bash
+
+      - name: Upload artifact for x64 🚀
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output-x64
+          path: artifact/x64/

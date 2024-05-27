@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build_release:
+    name: Build Release
+    uses: ./.github/workflows/build.yml
+
+  create_release:
+    needs: build_release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts 🛎️
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output-x64
+          path: json2srt/x64
+      - name: Download artifacts 🛎️
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output-x32
+          path: json2srt/x32
+      
+      - name: Create release 🛎️
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.ref }}
+          name: ${{ github.sha }}
+          draft: true
+          prerelease: false
+          files: |
+            json2srt/x64/*
+            json2srt/x32/*
