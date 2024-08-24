@@ -19,7 +19,7 @@ fn convert_to_srt_time_format(seconds: f64) -> String {
     let hours = (seconds / 3600.0).floor() as u32;
     let minutes = ((seconds % 3600.0) / 60.0).floor() as u32;
     let whole_seconds = seconds % 60.0;
-    let milliseconds = ((whole_seconds - whole_seconds.floor()) * 1000.0).floor() as u32;
+    let milliseconds = ((whole_seconds - whole_seconds.floor()) * 1000.0).round() as u32;
 
     format!("{:02}:{:02}:{:02},{:03}", hours, minutes, whole_seconds.floor() as u32, milliseconds)
 }
